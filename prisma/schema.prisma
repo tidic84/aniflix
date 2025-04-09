@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/lib/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// Définition des modèles pour notre application AniWatch
+
+model Anime {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  japaneseTitle String?
+  description   String
+  type          String    // TV, Movie, OVA, etc.
+  status        String    // Ongoing, Completed, etc.
+  year          Int
+  season        String    // Winter, Spring, Summer, Fall
+  episodes      Int
+  currentEpisode Int      // Nombre actuel des épisodes disponibles
+  duration      String
+  rating        String    // PG-13, R, etc.
+  score         Float
+  popularity    Int
+  image         String
+  bannerImage   String?
+  studios       String[]
+  genres        String[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  episodes_list Episode[] // Relation avec les épisodes
+}
+
+model Episode {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  number      Int
+  title       String
+  thumbnail   String
+  date        String
+  duration    String
+  description String?
+  views       Int      @default(0)
+  animeId     String   @db.ObjectId
+  anime       Anime    @relation(fields: [animeId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([animeId])
+}
